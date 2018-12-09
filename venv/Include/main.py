@@ -71,7 +71,9 @@ def astar(maze, start, end):
             if maze[node_position[0]][node_position[1]] != 0:
                 continue
 
-
+            # Zapewnia brak zapętlania się algorytmu w przypadku, gdy nie można znaleźć ścieżki
+            if Node(current_node, node_position) in closed_list:
+                continue
 
             # Jeśli wszystko okej, twprzymy kolejne pole
             new_node = Node(current_node, node_position)
