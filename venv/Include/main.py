@@ -1,5 +1,5 @@
 class Node():
-    """A node class for A* Pathfinding"""
+    # Klasa pola
 
     # Konstruktor dla klasy pól
     def __init__(self, parent=None, position=None):
@@ -9,17 +9,21 @@ class Node():
         self.g = 0
         self.h = 0
         self.f = 0
+        self.w = 1
 
     # Porównanie wartości
     def __eq__(self, other):
         return self.position == other.position
 
+    def set_w(self, w):
+        self.w = w
+
 
 def astar(maze, start, end):
-    """Returns a list of tuples as a path from the given start to the given end in the given maze"""
-    # Zwraca liste krotek jako ścieżkę od startu do pola końcowego
+    # Zwraca liste krotek jako ścieżkę od startu do pola końcowego (Wybrana struktura to krotka, ponieważ nie można jej zmienić)
 
     # Tworzymy początkowy i końcowy punkt
+    # print(maze[4][4])
     start_node = Node(None, start)
     start_node.g = start_node.h = start_node.f = 0
     end_node = Node(None, end)
@@ -29,10 +33,10 @@ def astar(maze, start, end):
     open_list = []
     closed_list = []
 
-    # Dodajemy to użytych punkt startowy
+    # Dodajemy to otwartych punkt startowy
     open_list.append(start_node)
 
-    # Główna pętla to znalezienia odpowiedniej ścieżki (jak nie znajdzie, wraca pustą listę)
+    # Główna pętla to znalezienia odpowiedniej ścieżki (jak nie znajdzie, zwraca pustą listę) Sprawdza do puki są niezbadane ścieżki
     while len(open_list) > 0:
 
         # Weź aktualne pole
@@ -43,17 +47,21 @@ def astar(maze, start, end):
                 current_node = item
                 current_index = index
 
-        # Wyrzuć aktualne pole z listy otwartych ścieżek
+        # Wyrzuć aktualne pole z listy otwartych ścieżek i dodaj do listy zamkniętych
         open_list.pop(current_index)
         closed_list.append(current_node)
 
         # Jeśli znaleźliśmy drogę
         if current_node == end_node:
+            sum = 0
             path = []
             current = current_node
             while current is not None:
+                sum += current.w
                 path.append(current.position)
                 current = current.parent
+
+            print(sum)
             return path[::-1] # Zwraca ścieżkę, znaleziono drogę!
 
         # Generujemy sąsiednie pola, na które możemy przejść
@@ -68,7 +76,7 @@ def astar(maze, start, end):
                 continue
 
             # Upewniamy się, że mozemy się poruszać po polu
-            if maze[node_position[0]][node_position[1]] != 0:
+            if maze[node_position[0]][node_position[1]] == -1:
                 continue
 
             # Zapewnia brak zapętlania się algorytmu w przypadku, gdy nie można znaleźć ścieżki
@@ -78,8 +86,18 @@ def astar(maze, start, end):
             # Jeśli wszystko okej, twprzymy kolejne pole
             new_node = Node(current_node, node_position)
 
-            # Dodajemy je
+            # Przypisujemy wagę
+            if current_node.position[1] != new_position[1]:
+                new_node.set_w(maze[node_position[0]][node_position[1]]+1)
+            elif current_node.position[0] < new_position[0]:
+                new_node.set_w(maze[node_position[0]][node_position[1]]+2)
+            else:
+                new_node.set_w(maze[node_position[0]][node_position[1]])
+
+            #
+            #if maze[node_position[0]][node_position[1]] < 300:
             children.append(new_node)
+
 
         # Pętla po wszystkich sąsiednich polach (dzieciach) głównego pola
         for child in children:
@@ -90,9 +108,12 @@ def astar(maze, start, end):
                     continue
 
             # Tworzymy F, G i H do obliczania wagi pola (G-łączna waga od startowego pola, H-łączna waga do końcowego pola, F-suma wag G i H)
-            child.g = current_node.g + 1 # Waga od startowego pola
+            child.g = current_node.g + current_node.w # Waga od startowego pola
+            #print("Wartosc G",child.g)
             child.h = ((child.position[0] - end_node.position[0]) ** 2) + ((child.position[1] - end_node.position[1]) ** 2) #H wyliczamy heurystycznie z twierdzenia pitagorasa a^2 + b^2 = c^2
+            #print("Wartosc H", child.h)
             child.f = child.g + child.h # Suma dwóch poprzednich
+            #print("Wartosc F", child.f)
 
             # Jeśli sąsiednie pole (dziecko) jest na liście otwartych pól
             for open_node in open_list:
@@ -105,19 +126,19 @@ def astar(maze, start, end):
 
 def main():
 
-    maze = [[0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 1, 0, 0, 1, 0, 0, 0, 0, 0],
-            [1, 0, 1, 0, 0, 0, 0, 0, 0, 0]]
+    maze = [[0, 1, 1, 1, -1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 4, -1, 1, 1, 1, 1, 1],
+            [1, 1, 2, 1, -1, 1, 1, 1, 1, 1],
+            [1, 2, 3, 1, -1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1,  5, 3, 1, 1, 1, 1],
+            [1, 1, 1, 1, -1, 3, 3, 1, 1, 1],
+            [1, 1, 1, 1, -1, 1, 1, 1, 1, 1],  #23
+            [1, 1, 1, 1, -1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, -1, 1, 1, 3, 4, 1],
+            [1, 1, 1, 1,  4, 1, 1, 3, 1, 1]]
 
     start = (0, 0)
-    end = (0,5)
+    end = (6, 8)
 
     path = astar(maze, start, end)
     print(path)
