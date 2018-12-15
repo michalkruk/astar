@@ -85,17 +85,7 @@ def astar(maze, start, end):
 
             # Jeśli wszystko okej, twprzymy kolejne pole
             new_node = Node(current_node, node_position)
-
-            # Przypisujemy wagę
-            if current_node.position[1] != new_position[1]:
-                new_node.set_w(maze[node_position[0]][node_position[1]]+1)
-            elif current_node.position[0] < new_position[0]:
-                new_node.set_w(maze[node_position[0]][node_position[1]]+2)
-            else:
-                new_node.set_w(maze[node_position[0]][node_position[1]])
-
-            #
-            #if maze[node_position[0]][node_position[1]] < 300:
+            
             children.append(new_node)
 
 
@@ -132,7 +122,7 @@ def main():
             [1, 2, 3, 1, -1, 1, 1, 1, 1, 1],
             [1, 1, 1, 1,  5, 3, 1, 1, 1, 1],
             [1, 1, 1, 1, -1, 3, 3, 1, 1, 1],
-            [1, 1, 1, 1, -1, 1, 1, 1, 1, 1],  #23
+            [1, 1, 1, 1, -1, 1, 1, 1, 1, 1],  
             [1, 1, 1, 1, -1, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, -1, 1, 1, 3, 4, 1],
             [1, 1, 1, 1,  4, 1, 1, 3, 1, 1]]
